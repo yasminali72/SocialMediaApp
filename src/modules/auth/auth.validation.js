@@ -21,5 +21,20 @@ export const login=joi.object().keys({
 }).required()
 
 export const resendCode=joi.object().keys({
+    email:generalFields.email.required(),
+    type:joi.string().valid("confirmEmail","forgetPassword").required()
+}).required()
+export const forgetPasword=joi.object().keys({
     email:generalFields.email.required()
+}).required()
+
+export const verifyCode=joi.object().keys({
+    email:generalFields.email.required(),
+    code:generalFields.code.required()
+}).required()
+
+export const resetPassword=joi.object().keys({
+    email:generalFields.email.required(),
+    newPassword:generalFields.password.required(),
+    conformationPassword:generalFields.confirmationPassword.valid(joi.ref("newPassword")).required()
 }).required()

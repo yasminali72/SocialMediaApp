@@ -16,7 +16,7 @@ const userSchema = new Schema(
       required: [true, "email is required"],
       unique: [true, "email exist"],
     },
-    confirmEmailOTP:String,
+ 
     password: {
       type: String,
       required: [true, "password is required"],
@@ -42,9 +42,21 @@ const userSchema = new Schema(
       default: false,
     },
     isDeleted:{type:Boolean,default:false},
+    isForgetPassword:{type:Boolean,
+      default:false},
+      isverifyCode:{type:Boolean,
+        default:false},
     changeCridentialsTime:Date,
-    tryOfResendCode:Number,
-    lastResendAttempt:Date
+    OTP: [{
+      code:String,
+      type:{
+type:String,
+enum:["confirmEmail","forgetPassword"]
+      },
+      tryOfResendCode:Number,
+      expiresIn:Date,
+      
+    }]
   },
   { timestamps: true }
 );
