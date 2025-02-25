@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
 export const genderTypes = { male: "male", female: "female" };
 export const roleTypes = { user: "user", admin: "admin" };
+export const providerTypes={google:"Google",system:"System"}
 const userSchema = new Schema(
   {
     userName: {
@@ -19,7 +20,10 @@ const userSchema = new Schema(
  
     password: {
       type: String,
-      required: [true, "password is required"],
+      required: (data)=>{
+        console.log(data);
+        return data?.provider === providerTypes.google? false :true
+      },
     },
     gender: {
       type: String,
@@ -56,7 +60,12 @@ enum:["confirmEmail","forgetPassword"]
       tryOfResendCode:Number,
       expiresIn:Date,
       
-    }]
+    }],
+    provider:{
+      type:String,
+      enum: Object.values(providerTypes),
+      default:providerTypes.system
+    }
   },
   { timestamps: true }
 );

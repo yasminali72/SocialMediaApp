@@ -13,6 +13,7 @@ export const validation=(Schema)=>{
     return (req,res,next)=>{
 const inputs={...req.body,...req.query ,...req.params}
 const validationResualts=Schema.validate(inputs,{abortEarly:false})
+console.log(validationResualts);
 if (validationResualts.error) {
     return res.status(400).json({message:"validation error",details:validationResualts.error.details})
 }

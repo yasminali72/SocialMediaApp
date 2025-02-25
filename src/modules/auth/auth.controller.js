@@ -12,6 +12,8 @@ const router = Router();
 
 router.post("/signup", validation(validators.signup),registrationService.signup)
 router.post("/login", validation(validators.login),loginService.login)
+router.post("/loginWithGoogle", loginService.loginWithGoogle)
+
 router.patch("/confirm-email", validation(validators.confirmEmail),registrationService.confirmEmail)
 router.patch("/resend-code", validation(validators.resendCode),registrationService.resendCode)
 

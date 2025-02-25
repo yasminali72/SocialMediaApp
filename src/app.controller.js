@@ -1,10 +1,11 @@
 import connectDB from './DB/connection.js'
 import authController from './modules/auth/auth.controller.js'
 import { globalErrorHandling } from './utils/response/error.response.js'
-
+import cors from "cors"
 
 
 const bootstrap = (app, express) => {
+    app.use(cors())
     app.use(express.json())
 
     app.get("/", (req, res, next) => {
