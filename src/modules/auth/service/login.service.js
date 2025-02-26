@@ -11,7 +11,9 @@ import {
   generateHash,
 } from "../../../utils/security/hash.security.js";
 import {
+  decodedToken,
   generateToken,
+  tokenTypes,
   verifyToken,
 } from "../../../utils/security/token.security.js";
 import jwt from "jsonwebtoken";
@@ -114,33 +116,7 @@ export const loginWithGoogle = asyncHandler(async (req, res, next) => {
 
 export const refreshToken = asyncHandler(async (req, res, next) => {
   const { authorization } = req.headers;
-  const [bearer, token] = authorization?.split(" ") || [];
-  if (!bearer || !token) {
-    return next(new Error("missing token", { cause: 400 }));
-  }
-  let signature = "";
-  switch (bearer) {
-    case "System":
-      signature = process.env.ADMIN_REFRESH_TOKEN;
-      break;
-    case "Bearer":
-      signature = process.env.USER_REFRESH_TOKEN;
-      break;
-    default:
-      break;
-  }
-
-  const decoded = verifyToken({ token, signature });
-  if (!decoded?.id) {
-    return next(new Error("in-valid token payload", { cause: 404 }));
-  }
-  const user = await userModel.findOne({ _id: decoded.id, isDeleted: false });
-  if (!user) {
-    return next(new Error("not registered account", { cause: 404 }));
-  }
-  if (user.changeCridentialsTime?.getTime() >= decoded.iat * 1000) {
-    return next(new Error("in-valid login Cridentials", { cause: 400 }));
-  }
+ const user= await decodedToken({authorization,tokenType:tokenTypes.refresh})
   const access_token = generateToken({
     payload: { id: user._id },
     signature:

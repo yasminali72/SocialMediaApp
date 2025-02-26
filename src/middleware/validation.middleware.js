@@ -1,12 +1,17 @@
 import joi from 'joi'
+import { Types } from 'mongoose'
 
+export const isValidObjectId=(value,halper)=>{
+return Types.ObjectId.isValid(value)?true :halper.message("in-valid object id")
+}
 export const generalFields={
     userName:joi.string().min(2).max(50).trim(),
     email:joi.string().email({minDomainSegments:2,maxDomainSegments:3,tlds:{allow:['com','net']}}),
 password:joi.string().pattern(new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[a-zA-Z]).{8,}$/)),
 confirmationPassword:joi.string().valid(joi.ref("password")),
 phone:joi.string().pattern(new RegExp(/^\+?(1|20|44|49|91|971|966|33|34|39|86|81|55|27)\d{9}$/)),
-code:joi.string().pattern(new RegExp(/^\d{4}$/))
+code:joi.string().pattern(new RegExp(/^\d{4}$/)),
+id:joi.string().custom(isValidObjectId)
 }
 
 export const validation=(Schema)=>{

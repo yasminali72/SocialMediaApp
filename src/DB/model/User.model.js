@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 export const genderTypes = { male: "male", female: "female" };
 export const roleTypes = { user: "user", admin: "admin" };
 export const providerTypes={google:"Google",system:"System"}
@@ -65,7 +65,14 @@ enum:["confirmEmail","forgetPassword"]
       type:String,
       enum: Object.values(providerTypes),
       default:providerTypes.system
-    }
+    },
+    viewers:[{
+      userId:{type:Types.ObjectId,ref:"User"},
+      visitedAt:[
+       Date
+      ]}
+      
+    ]
   },
   { timestamps: true }
 );
