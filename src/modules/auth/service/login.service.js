@@ -5,7 +5,10 @@ import userModel, {
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { sucessResponse } from "../../../utils/response/sucess.response.js";
-import { generatedecryption } from "../../../utils/security/encryption.js";
+import {
+  generateEncryption,
+  generatedecryption,
+} from "../../../utils/security/encryption.js";
 import {
   compareHash,
   generateHash,
@@ -17,10 +20,13 @@ import {
   verifyToken,
 } from "../../../utils/security/token.security.js";
 import jwt from "jsonwebtoken";
-import {OAuth2Client} from "google-auth-library"
+// login by gmail
 export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await userModel.findOne({ email,provider:providerTypes.system });
+  const user = await userModel.findOne({
+    email,
+    provider: providerTypes.system,
+  });
   if (!user) {
     return next(new Error("in-valid data", { cause: 404 }));
   }
@@ -52,22 +58,60 @@ export const login = asyncHandler(async (req, res, next) => {
     data: { access_token, refresh_token },
   });
 });
-
+// login by phone
+export const loginWithPhone = asyncHandler(async (req, res, next) => {
+  const { phone, password } = req.body;
+  const users = await userModel.find();
+  const user = users.find(
+    (user) => generatedecryption({ caipherText: user.phone }) == phone
+  );
+  if (!user) {
+    return next(new Error("in-valid data", { cause: 404 }));
+  }
+  if (!user.confirmEmail) {
+    return next(new Error("please confirm your email first", { cause: 409 }));
+  }
+  if (!compareHash({ plainText: password, hashValue: user.password })) {
+    return next(new Error("your password is not correct ", { cause: 404 }));
+  }
+  user.phone = generatedecryption({ caipherText: user.phone });
+  const access_token = generateToken({
+    payload: { id: user._id },
+    signature:
+      user.role === roleTypes.admin
+        ? process.env.ADMIN_ACCESS_TOKEN
+        : process.env.USER_ACCESS_TOKEN,
+  });
+  const refresh_token = generateToken({
+    payload: { id: user._id },
+    signature:
+      user.role === roleTypes.admin
+        ? process.env.ADMIN_REFRESH_TOKEN
+        : process.env.USER_REFRESH_TOKEN,
+    expiresIn: 31536000,
+  });
+  return sucessResponse({
+    res,
+    message: "Login",
+    data: { access_token, refresh_token },
+  });
+});
+// login by google
 export const loginWithGoogle = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   console.log(req.body);
 
-// const client =new OAuth2Client()
+  // const client =new OAuth2Client()
 
-// async function verify(){
-//     const ticket = await client.verifyIdToken({
-//         idToken: token,
-//         audience:process.env.GOOGLE_CLIENT_ID,
-//     })
-// const payload=ticket.getPayload()
-// return payload
-// }
-// const payload=await verify()
+  // async function verify(){
+  //     const ticket = await client.verifyIdToken({
+  //         idToken: token,
+  //         audience:process.env.GOOGLE_CLIENT_ID,
+  //     })
+  // const payload=ticket.getPayload()
+  // return payload
+  // }
+  // const payload=await verify()
   if (token) {
     const payload = jwt.decode(token);
     console.log(payload);
@@ -76,47 +120,48 @@ export const loginWithGoogle = asyncHandler(async (req, res, next) => {
     }
     let user = await userModel.findOne({ email: payload.email });
     if (!user) {
-     user= await userModel.create({
+      user = await userModel.create({
         userName: payload.given_name,
         lastName: payload.family_name,
         email: payload.email,
         image: payload.image,
         provider: providerTypes.google,
-       
       });
-   
     }
 
-    if (user.provider!==providerTypes.google) {
-        return next(new Error("in-valid provider"));
+    if (user.provider !== providerTypes.google) {
+      return next(new Error("in-valid provider"));
     }
     const access_token = generateToken({
-        payload: { id: user._id },
-        signature:
-          user.role === roleTypes.admin
-            ? process.env.ADMIN_ACCESS_TOKEN
-            : process.env.USER_ACCESS_TOKEN,
-      });
-      const refresh_token = generateToken({
-        payload: { id: user._id },
-        signature:
-          user.role === roleTypes.admin
-            ? process.env.ADMIN_REFRESH_TOKEN
-            : process.env.USER_REFRESH_TOKEN,
-        expiresIn: 31536000,
-      });
-      return sucessResponse({
-        res,
-        message: "Login",
-        data: { access_token, refresh_token },
-      });
+      payload: { id: user._id },
+      signature:
+        user.role === roleTypes.admin
+          ? process.env.ADMIN_ACCESS_TOKEN
+          : process.env.USER_ACCESS_TOKEN,
+    });
+    const refresh_token = generateToken({
+      payload: { id: user._id },
+      signature:
+        user.role === roleTypes.admin
+          ? process.env.ADMIN_REFRESH_TOKEN
+          : process.env.USER_REFRESH_TOKEN,
+      expiresIn: 31536000,
+    });
+    return sucessResponse({
+      res,
+      message: "Login",
+      data: { access_token, refresh_token },
+    });
   }
   return next(new Error("token is required"));
 });
 
 export const refreshToken = asyncHandler(async (req, res, next) => {
   const { authorization } = req.headers;
- const user= await decodedToken({authorization,tokenType:tokenTypes.refresh})
+  const user = await decodedToken({
+    authorization,
+    tokenType: tokenTypes.refresh,
+  });
   const access_token = generateToken({
     payload: { id: user._id },
     signature:
