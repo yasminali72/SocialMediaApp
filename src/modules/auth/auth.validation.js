@@ -7,7 +7,9 @@ export const signup=joi.object().keys({
 password:generalFields.password.required(),
 confirmationPassword:generalFields.confirmationPassword.required(),
 phone:generalFields.phone.required(),
-gender:joi.string().valid("female","male")
+gender:generalFields.gender,
+address:generalFields.address,
+DOB:generalFields.DOB
 }).required()
 
 export const confirmEmail=joi.object().keys({

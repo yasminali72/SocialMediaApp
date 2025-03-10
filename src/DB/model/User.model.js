@@ -17,6 +17,12 @@ const userSchema = new Schema(
       required: [true, "email is required"],
       unique: [true, "email exist"],
     },
+    confirmEmail: {
+      type: Boolean,
+      default: false,
+    },
+    tempEmail:String,
+    tempEmailOTP:String,
  
     password: {
       type: String,
@@ -41,16 +47,13 @@ const userSchema = new Schema(
     coverImage: [String],
     DOB: Date,
 
-    confirmEmail: {
-      type: Boolean,
-      default: false,
-    },
+   
     isDeleted:{type:Boolean,default:false},
     isForgetPassword:{type:Boolean,
       default:false},
       isverifyCode:{type:Boolean,
         default:false},
-    changeCridentialsTime:Date,
+        changeCredentialTime:Date,
     OTP: [{
       code:String,
       type:{
@@ -72,7 +75,8 @@ enum:["confirmEmail","forgetPassword"]
        Date
       ]}
       
-    ]
+    ],
+    
   },
   { timestamps: true }
 );

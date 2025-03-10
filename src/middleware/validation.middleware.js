@@ -1,5 +1,5 @@
 import joi from 'joi'
-import { Types } from 'mongoose'
+import { genderTypes } from '../DB/model/User.model.js'
 
 export const isValidObjectId=(value,halper)=>{
 return Types.ObjectId.isValid(value)?true :halper.message("in-valid object id")
@@ -11,7 +11,11 @@ password:joi.string().pattern(new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[a-zA-Z]).{8,
 confirmationPassword:joi.string().valid(joi.ref("password")),
 phone:joi.string().pattern(new RegExp(/^\+?(1|20|44|49|91|971|966|33|34|39|86|81|55|27)\d{9}$/)),
 code:joi.string().pattern(new RegExp(/^\d{4}$/)),
-id:joi.string().custom(isValidObjectId)
+id:joi.string().custom(isValidObjectId),
+DOB:joi.date().iso().less("now"),
+gender:joi.string().valid(...Object.values(genderTypes)).default(genderTypes.male),
+address:joi.string()
+
 }
 
 export const validation=(Schema)=>{
