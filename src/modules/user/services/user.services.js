@@ -91,5 +91,27 @@ export const updateProfile=asyncHandler(async(req,res,next)=>{
 
 
 })
+export const deleteAccount = asyncHandler(async (req, res, next) => {
+  const user = await userModel.findByIdAndUpdate(
+    req.user._id,
+    { isDeleted: true, changeCredentialTime: Date.now(),deletedAt:Date.now() },
+    { new: true }
+  );
+  return sucessResponse({ res, message: "Account is freezed" });
+});
+
+export const unfreezeAccount = asyncHandler(async (req, res, next) => {
+ const {email} =req.body
+  const user = await userModel.findOneAndUpdate(
+    {
+      email
+    },
+    { isDeleted: false }
+  );
+  if (!user) {
+    return next(new Error("email is not registered before"));
+  }
+  return sucessResponse({ res, message: "Account is Active Now" });
+});
 
 

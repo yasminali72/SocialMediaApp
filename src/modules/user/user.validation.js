@@ -26,3 +26,7 @@ export const updatePassword=joi.object().keys({
     newPassword:generalFields.password.not(joi.ref("oldPassword")).required(),
     confirmationPassword:generalFields.confirmationPassword.valid(joi.ref("newPassword")).required()
 }).required()
+
+export const unfreezeAccount=joi.object().keys({
+    email:generalFields.email.required()
+  }).required()

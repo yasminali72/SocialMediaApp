@@ -16,6 +16,7 @@ router.patch("/profile/update-email",validation(validators.updateEmail),authenti
 router.patch("/profile/reset-email",validation(validators.resetEmail),authentication(),userService.restEmail)
 router.patch("/profile/update-password",validation(validators.updatePassword),authentication(),userService.updatePassword)
 
-
+router.delete("/profile",authentication(),userService.deleteAccount)
+router.patch("/unfreezeProfile",validation(validators.unfreezeAccount),userService.unfreezeAccount)
 
 export default router

@@ -33,6 +33,9 @@ export const login = asyncHandler(async (req, res, next) => {
   if (!user.confirmEmail) {
     return next(new Error("please confirm your email first", { cause: 409 }));
   }
+  if (user.isDeleted) {
+    return next(new Error("Account is freezed"))
+  }
   if (!compareHash({ plainText: password, hashValue: user.password })) {
     return next(new Error("your password is not correct ", { cause: 404 }));
   }
@@ -70,6 +73,9 @@ export const loginWithPhone = asyncHandler(async (req, res, next) => {
   }
   if (!user.confirmEmail) {
     return next(new Error("please confirm your email first", { cause: 409 }));
+  }
+  if (user.isDeleted) {
+    return next(new Error("Account is freezed"))
   }
   if (!compareHash({ plainText: password, hashValue: user.password })) {
     return next(new Error("your password is not correct ", { cause: 404 }));
@@ -127,6 +133,9 @@ export const loginWithGoogle = asyncHandler(async (req, res, next) => {
         image: payload.image,
         provider: providerTypes.google,
       });
+    }
+    if (user.isDeleted) {
+      return next(new Error("Account is freezed"))
     }
 
     if (user.provider !== providerTypes.google) {
