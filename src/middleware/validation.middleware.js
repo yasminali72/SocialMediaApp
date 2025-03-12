@@ -1,5 +1,6 @@
 import joi from 'joi'
 import { genderTypes } from '../DB/model/User.model.js'
+import { Types } from 'mongoose'
 
 export const isValidObjectId=(value,halper)=>{
 return Types.ObjectId.isValid(value)?true :halper.message("in-valid object id")
