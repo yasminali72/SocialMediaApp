@@ -1,5 +1,6 @@
 import userModel from "../../../DB/model/User.model.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
+import { cloud } from "../../../utils/multer/cloudinary.multer.js";
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { sucessResponse } from "../../../utils/response/sucess.response.js";
 import { generateEncryption } from "../../../utils/security/encryption.js";
@@ -91,6 +92,60 @@ export const updateProfile=asyncHandler(async(req,res,next)=>{
 
 
 })
+
+
+export const uploadProfileImage = asyncHandler(async (req, res, next) => {
+  const {secure_url,public_id}=await cloud.uploader.upload(req.file.path,{folder:`${process.env.APP_NAME}/user/${req.user._id}/profile`})
+const user=  await userModel.findByIdAndUpdate(req.user._id, {
+    profilePic: { secure_url ,public_id},
+  });
+  if (user.profilePic?.public_id) {
+    await cloud.uploader.destroy(user.profilePic.public_id)
+  }
+  return sucessResponse({
+    res,
+    message: "upload profile image is done",
+    data: {  user },
+  });
+});
+export const uploadProfileCoverImage = asyncHandler(async (req, res, next) => {
+
+  let images=[...req.user.coverPic]
+  for (const file of req.files) {
+    const {secure_url,public_id}=await cloud.uploader.upload(file.path,{folder:`${process.env.APP_NAME}/user/${req.user._id}/profile/cover`})
+images.push({secure_url,public_id})
+  }
+  const user = await userModel.findByIdAndUpdate(
+    req.user._id,
+    { coverPic: images },{new:true}
+  );
+  return sucessResponse({
+    res,
+    message: "upload profile cover image is done",
+    data: { user },
+  });
+});
+export const deleteProfileImage = asyncHandler(async (req, res, next) => {
+ await cloud.uploader.destroy(req.user.profilePic?.public_id)
+ const user= await userModel.findByIdAndUpdate(req.user._id, {
+    $unset: { profilePic: "" }
+  });
+  return sucessResponse({
+    res,
+    message: "delete profile image is done",
+    data: { user },
+  });
+});
+export const deleteCoverImage = asyncHandler(async (req, res, next) => {
+  const {public_id}=req.query
+  await cloud.uploader.destroy(public_id)
+const user=  await userModel.findOneAndUpdate(req.user._id, { $pull: { coverPic: {public_id} } },{new:true});
+  return sucessResponse({
+    res,
+    message:"Cover image deleted successfully",
+    data: { user },
+  });
+});
 export const deleteAccount = asyncHandler(async (req, res, next) => {
   const user = await userModel.findByIdAndUpdate(
     req.user._id,

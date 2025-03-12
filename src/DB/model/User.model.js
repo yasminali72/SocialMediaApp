@@ -43,8 +43,14 @@ const userSchema = new Schema(
     },
     phone: String,
     address: String,
-    image: String,
-    coverImage: [String],
+    profilePic: {
+      secure_url: String,
+      public_id:String
+    },
+    coverPic:[{
+      secure_url:String,
+      public_id:String
+    }],
     DOB: Date,
 
    
