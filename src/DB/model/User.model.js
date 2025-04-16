@@ -27,7 +27,6 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: (data)=>{
-        console.log(data);
         return data?.provider === providerTypes.google? false :true
       },
     },

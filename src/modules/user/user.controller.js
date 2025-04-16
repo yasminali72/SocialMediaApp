@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import * as userService from "./services/user.services.js"
+import * as userService from "./service/user.service.js"
 import { authentication } from "../../middleware/auth.middleware.js";
 import * as validators from "./user.validation.js"
 import { validation } from "../../middleware/validation.middleware.js";
