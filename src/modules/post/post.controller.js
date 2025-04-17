@@ -12,7 +12,7 @@ import {
   uploadCloudFile,
 } from "../../utils/multer/cloud.multer.js";
 const router = Router();
-
+// create post
 router.post(
   "/",
   authentication(),
@@ -21,7 +21,12 @@ router.post(
   validation(validators.createPost),
   postSerivce.createPost
 );
-
+// get all post
+router.get(
+  "/",
+  authentication(),
+  postSerivce.getPosts
+);
 router.patch(
   "/:postId",
   authentication(),
@@ -46,6 +51,15 @@ router.patch(
   validation(validators.unFreezePost),
   postSerivce.unFreezePost
 );
+// like and unlike post
+router.patch(
+  "/:postId/toggleLikePost",
+  authentication(),
+  authorization(endPoint.toggleLikePost),
+  validation(validators.toggleLikePost),
+  postSerivce.toggleLikePost
+);
+
 
 
 

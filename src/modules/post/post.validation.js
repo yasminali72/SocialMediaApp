@@ -27,3 +27,8 @@ export const updatePost = joi.object()
     postId: generalFields.id.required(),
    
   })
+  export const toggleLikePost = joi.object()
+  .keys({
+    postId: generalFields.id.required(),
+   
+  })
